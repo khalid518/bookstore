@@ -36,7 +36,8 @@ export default function Header({ cartCount }) {
           </button>
         </div>
 
-        <nav id="primary-nav" aria-label="Primary" className={`${open ? 'block' : 'hidden'} w-full md:block md:w-auto`}>
+        <nav id="primary-nav" aria-label="Primary" className={`grid w-full transition-[grid-template-rows,visibility] duration-300 ease-out motion-reduce:transition-none md:block md:w-auto md:visible ${open ? 'visible grid-rows-[1fr]' : 'invisible grid-rows-[0fr]'}`}>
+          <div className="min-h-0 overflow-hidden md:overflow-visible">
           <ul className="flex flex-col pt-2 md:flex-row md:flex-wrap md:items-center md:gap-x-5 md:gap-y-1 md:pt-0">
             {links.map((l) => (
               <li key={l.href}>
@@ -50,6 +51,7 @@ export default function Header({ cartCount }) {
             </li>
             <li className="hidden text-sm font-semibold text-primary md:block">Basket: {cartCount}</li>
           </ul>
+          </div>
         </nav>
       </div>
     </header>
