@@ -7,7 +7,7 @@ const links = [
 
 export default function Header({ cartCount }) {
   return (
-    <header className="sticky top-0 z-10 border-b border-line bg-surface">
+    <header className="sticky top-0 z-50 border-b border-line bg-surface">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-8 gap-y-2 px-5 py-3 sm:px-8">
         <a href="#home" aria-label="The Reading Room, home" className="font-heading text-2xl font-bold italic text-primary no-underline">
           The Reading Room

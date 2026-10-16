@@ -31,7 +31,7 @@ export default function Hero() {
         <div
           role="img"
           aria-label="A fanned stack of three book covers: Circe, Piranesi and A Gentleman in Moscow, resting on a warm wooden shelf"
-          className="relative aspect-square w-full max-w-md min-w-0 overflow-hidden rounded-md bg-primary lg:max-w-[30rem] lg:flex-[0_1_45%]"
+          className="relative isolate aspect-square w-full max-w-md min-w-0 overflow-hidden rounded-md bg-primary lg:max-w-[30rem] lg:flex-[0_1_45%]"
         >
           {shelf.map((b, i) => (
             <img key={b.id} src={b.coverUrl} alt="" className={`absolute bottom-[14%] aspect-[2/3] w-[36%] origin-bottom rounded-sm object-cover shadow-xl ${positions[i]}`} />
