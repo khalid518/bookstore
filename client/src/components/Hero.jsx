@@ -1,13 +1,12 @@
-import books from '../data/books.js'
-
-const shelf = ['circe', 'piranesi', 'gentleman-in-moscow'].map((id) => books.find((b) => b.id === id))
+const shelfIds = ['circe', 'piranesi', 'gentleman-in-moscow']
 const positions = [
   'left-[8%] -rotate-[8deg]',
   'left-[32%] z-10 -translate-y-[6%]',
   'right-[8%] rotate-[8deg]',
 ]
 
-export default function Hero() {
+export default function Hero({ books }) {
+  const shelf = shelfIds.map((id) => books.find((b) => b.id === id)).filter(Boolean)
   return (
     <section id="home" aria-labelledby="hero-title" className="bg-gradient-to-b from-alt to-cream py-16">
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-8 px-5 sm:px-8 lg:flex-row lg:gap-16">
