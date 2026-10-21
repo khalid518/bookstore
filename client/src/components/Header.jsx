@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useSession, signOut } from '../lib/auth.js'
+import AuthDialog from './AuthDialog.jsx'
 
 const links = [
   { href: '#home', label: 'Home' },
@@ -11,6 +13,8 @@ const linkClass = 'block border-b-2 border-transparent py-2 text-[0.95rem] font-
 
 export default function Header({ cartCount }) {
   const [open, setOpen] = useState(false)
+  const [authMode, setAuthMode] = useState(null)
+  const { data: session, isPending } = useSession()
   const close = () => setOpen(false)
 
   return (
@@ -50,10 +54,32 @@ export default function Header({ cartCount }) {
               </a>
             </li>
             <li className="hidden text-sm font-semibold text-primary md:block">Basket: {cartCount}</li>
+            {!isPending && (
+              <li className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2 md:border-l md:border-line md:py-0 md:pl-5">
+                {session ? (
+                  <>
+                    <span className="text-sm text-muted">Hi, {session.user.name}</span>
+                    <button type="button" onClick={() => { close(); signOut() }} className="rounded-md border-2 border-primary px-4 py-1 text-[0.95rem] font-semibold text-primary hover:bg-primary hover:text-cream">
+                      Sign out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" onClick={() => { close(); setAuthMode('signin') }} className="rounded-md border-2 border-primary px-4 py-1 text-[0.95rem] font-semibold text-primary hover:bg-primary hover:text-cream">
+                      Sign in
+                    </button>
+                    <button type="button" onClick={() => { close(); setAuthMode('signup') }} className="text-[0.95rem] font-semibold text-accent underline underline-offset-4 hover:text-primary">
+                      Sign up
+                    </button>
+                  </>
+                )}
+              </li>
+            )}
           </ul>
           </div>
         </nav>
       </div>
+      {authMode && <AuthDialog mode={authMode} onClose={() => setAuthMode(null)} />}
     </header>
   )
 }
