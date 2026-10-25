@@ -123,4 +123,64 @@ router.post('/orders', async (req, res, next) => {
   }
 })
 
+const currentUser = async (req) => (await auth.api.getSession({ headers: fromNodeHeaders(req.headers) }))?.user
+
+// The signed-in user's orders, newest first, each with its line items.
+router.get('/orders', async (req, res, next) => {
+  try {
+    const user = await currentUser(req)
+    if (!user) return res.status(401).json({ error: 'Sign in to see your orders' })
+
+    const { rows } = await pool.query(
+      `SELECT o.id, o.total, o.status, o.created_at AT TIME ZONE 'UTC' AS created_at,
+              json_agg(json_build_object(
+                'bookId', b.id, 'title', b.title, 'author', b.author, 'isbn', b.isbn,
+                'quantity', oi.quantity, 'unitPrice', oi.unit_price
+              ) ORDER BY b.title) AS items
+         FROM orders o
+         JOIN order_items oi ON oi.order_id = o.id
+         JOIN books b ON b.id = oi.book_id
+        WHERE o.user_id = $1
+        GROUP BY o.id
+        ORDER BY o.created_at DESC
+        LIMIT 50`,
+      [user.id],
+    )
+    res.json(
+      rows.map((r) => ({
+        id: r.id,
+        status: r.status,
+        total: Number(r.total),
+        createdAt: r.created_at.toISOString(),
+        items: r.items.map((i) => ({
+          ...i,
+          unitPrice: Number(i.unitPrice),
+          coverUrl: `https://covers.openlibrary.org/b/isbn/${i.isbn}-M.jpg`,
+        })),
+      })),
+    )
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Cancel one of your own orders while it is still only reserved.
+router.post('/orders/:id/cancel', async (req, res, next) => {
+  try {
+    const user = await currentUser(req)
+    if (!user) return res.status(401).json({ error: 'Sign in to manage your orders' })
+    const id = Number(req.params.id)
+    if (!Number.isInteger(id)) return res.status(400).json({ error: 'Invalid order' })
+
+    const { rowCount } = await pool.query(
+      `UPDATE orders SET status = 'cancelled' WHERE id = $1 AND user_id = $2 AND status = 'placed'`,
+      [id, user.id],
+    )
+    if (rowCount === 0) return res.status(409).json({ error: 'This order can no longer be cancelled' })
+    res.json({ id, status: 'cancelled' })
+  } catch (err) {
+    next(err)
+  }
+})
+
 export default router

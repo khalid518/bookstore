@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { subscribe } from '../lib/api.js'
+import Reveal from './Reveal.jsx'
 
 export default function Newsletter() {
   const [state, setState] = useState('idle') // idle | pending | done
@@ -20,11 +21,12 @@ export default function Newsletter() {
   }
 
   return (
-    <section id="newsletter" aria-labelledby="news-title" className="py-16">
+    <section id="newsletter" aria-labelledby="news-title" className="bg-alt py-20">
       <div className="mx-auto w-full max-w-6xl px-5 sm:px-8">
-        <div className="rounded-md border border-line border-t-4 border-t-accent bg-surface p-8 text-center sm:p-12">
+        <Reveal className="relative overflow-hidden rounded-3xl border border-line bg-gradient-to-br from-surface via-surface to-alt p-8 text-center shadow-lift sm:p-14">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gold/20 blur-2xl" />
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-accent">The Reading Room letter</p>
-          <h2 id="news-title" className="mb-2 font-heading text-3xl text-primary sm:text-4xl">New arrivals, event news and staff picks</h2>
+          <h2 id="news-title" className="mb-2 font-heading text-3xl font-semibold text-primary sm:text-4xl">New arrivals, event news and staff picks</h2>
           <p className="mx-auto mb-6 max-w-xl text-muted">One short email now and then. No spam, and you can leave any time.</p>
 
           {state === 'done' ? (
@@ -39,15 +41,15 @@ export default function Newsletter() {
                 required
                 autoComplete="email"
                 placeholder="you@example.com"
-                className="min-w-0 flex-1 rounded-md border-2 border-line bg-white px-4 py-2.5 text-primary focus:border-primary focus:outline-none"
+                className="min-w-0 flex-1 rounded-full border-2 border-line bg-white px-5 py-3 text-primary focus:border-primary focus:outline-none"
               />
-              <button type="submit" disabled={state === 'pending'} className="rounded-md bg-accent px-6 py-2.5 font-semibold text-white hover:bg-accent-dark disabled:opacity-60">
+              <button type="submit" disabled={state === 'pending'} className="rounded-full bg-accent px-7 py-3 font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-accent-dark disabled:opacity-60">
                 {state === 'pending' ? 'Signing up…' : 'Subscribe'}
               </button>
             </form>
           )}
           {error && <p role="alert" className="mt-3 text-sm text-accent-dark">{error}</p>}
-        </div>
+        </Reveal>
       </div>
     </section>
   )

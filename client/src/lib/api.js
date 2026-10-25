@@ -27,3 +27,13 @@ export async function subscribe(email) {
   const body = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(body.error || 'Could not sign you up. Please try again.')
 }
+
+async function authed(path, options) {
+  const res = await fetch(`/api${path}`, options)
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(body.error || 'Something went wrong. Please try again.')
+  return body
+}
+
+export const fetchOrders = () => authed('/orders')
+export const cancelOrder = (id) => authed(`/orders/${id}/cancel`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })

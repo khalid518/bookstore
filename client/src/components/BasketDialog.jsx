@@ -43,10 +43,10 @@ export default function BasketDialog({ books, quantities, onQuantityChange, onCl
   const empty = items.length === 0
 
   return (
-    <dialog ref={dialogRef} onClose={onClose} onClick={(e) => e.target === e.currentTarget && onClose()} aria-labelledby="basket-title" className="m-0 ml-auto h-dvh max-h-none w-[min(26rem,100%)] bg-surface p-0 text-ink backdrop:bg-black/50">
+    <dialog ref={dialogRef} onClose={onClose} onClick={(e) => e.target === e.currentTarget && onClose()} aria-labelledby="basket-title" className="m-0 ml-auto h-dvh max-h-none w-[min(26rem,100%)] bg-surface p-0 text-ink shadow-lift open:motion-safe:animate-slide backdrop:bg-black/50 backdrop:backdrop-blur-sm">
       <div className="flex h-full flex-col">
         <div className="flex items-start justify-between gap-4 border-b border-line p-6">
-          <h2 id="basket-title" className="font-heading text-2xl text-primary">{confirmation ? 'Order placed' : 'Your basket'}</h2>
+          <h2 id="basket-title" className="font-heading text-2xl font-semibold text-primary">{confirmation ? 'Order placed' : 'Your basket'}</h2>
           <button type="button" onClick={onClose} aria-label="Close basket" className="text-2xl leading-none text-muted hover:text-primary">×</button>
         </div>
 
@@ -57,14 +57,14 @@ export default function BasketDialog({ books, quantities, onQuantityChange, onCl
               Order <strong>#{confirmation.id}</strong> ({confirmation.itemCount} {confirmation.itemCount === 1 ? 'item' : 'items'}, {money(confirmation.total)}) is being set aside for you.
             </p>
             <p className="text-sm text-muted">Pay when you collect it in store.</p>
-            <button type="button" onClick={onClose} className="mt-2 rounded-md border-2 border-primary px-5 py-2 font-semibold text-primary hover:bg-primary hover:text-cream">
+            <button type="button" onClick={onClose} className="mt-2 rounded-full border-2 border-primary px-5 py-2 font-semibold text-primary hover:bg-primary hover:text-cream">
               Keep browsing
             </button>
           </div>
         ) : empty ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
             <p className="text-muted">Your basket is empty.</p>
-            <button type="button" onClick={onClose} className="rounded-md border-2 border-primary px-5 py-2 font-semibold text-primary hover:bg-primary hover:text-cream">
+            <button type="button" onClick={onClose} className="rounded-full border-2 border-primary px-5 py-2 font-semibold text-primary hover:bg-primary hover:text-cream">
               Keep browsing
             </button>
           </div>
@@ -91,13 +91,13 @@ export default function BasketDialog({ books, quantities, onQuantityChange, onCl
                 <span className="font-heading text-xl font-bold tabular-nums text-primary">{money(subtotal)}</span>
               </div>
               <p className="mb-4 text-xs text-muted">Reserve online and pay in store when you collect. Tax isn't included.</p>
-              {error && <p role="alert" className="mb-3 rounded-md bg-accent/10 px-3 py-2 text-sm text-accent-dark">{error}</p>}
+              {error && <p role="alert" className="mb-3 rounded-xl bg-accent/10 px-3 py-2 text-sm text-accent-dark">{error}</p>}
               {session ? (
-                <button type="button" onClick={checkout} disabled={pending} className="w-full rounded-md bg-accent px-4 py-2.5 font-semibold text-white hover:bg-accent-dark disabled:opacity-60">
+                <button type="button" onClick={checkout} disabled={pending} className="w-full rounded-full bg-accent px-4 py-2.5 font-semibold text-white hover:bg-accent-dark disabled:opacity-60">
                   {pending ? 'Placing order…' : 'Place pickup order'}
                 </button>
               ) : (
-                <button type="button" onClick={() => setSigningIn(true)} className="w-full rounded-md bg-accent px-4 py-2.5 font-semibold text-white hover:bg-accent-dark">
+                <button type="button" onClick={() => setSigningIn(true)} className="w-full rounded-full bg-accent px-4 py-2.5 font-semibold text-white hover:bg-accent-dark">
                   Sign in to place your order
                 </button>
               )}

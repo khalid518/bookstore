@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { signIn, signUp } from '../lib/auth.js'
 
-const field = 'w-full rounded-md border-2 border-line bg-white px-3 py-2 text-primary focus:border-primary focus:outline-none'
+const field = 'w-full rounded-xl border-2 border-line bg-white px-4 py-2.5 text-primary transition-colors focus:border-primary focus:outline-none'
 
 export default function AuthDialog({ mode: initialMode, onClose }) {
   const [mode, setMode] = useState(initialMode)
@@ -36,10 +36,10 @@ export default function AuthDialog({ mode: initialMode, onClose }) {
   }
 
   return (
-    <dialog ref={dialogRef} onClose={onClose} onClick={(e) => e.target === e.currentTarget && onClose()} aria-labelledby="auth-title" className="m-auto w-[min(26rem,calc(100%-2rem))] rounded-md bg-surface p-0 text-ink backdrop:bg-black/50">
+    <dialog ref={dialogRef} onClose={onClose} onClick={(e) => e.target === e.currentTarget && onClose()} aria-labelledby="auth-title" className="m-auto w-[min(26rem,calc(100%-2rem))] rounded-3xl bg-surface p-0 text-ink shadow-lift open:motion-safe:animate-rise backdrop:bg-black/50 backdrop:backdrop-blur-sm">
       <form onSubmit={submit} className="flex flex-col gap-4 p-6">
         <div className="flex items-start justify-between gap-4">
-          <h2 id="auth-title" className="font-heading text-2xl text-primary">{isSignUp ? 'Create an account' : 'Sign in'}</h2>
+          <h2 id="auth-title" className="font-heading text-2xl font-semibold text-primary">{isSignUp ? 'Create an account' : 'Sign in'}</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="text-2xl leading-none text-muted hover:text-primary">×</button>
         </div>
 
@@ -61,7 +61,7 @@ export default function AuthDialog({ mode: initialMode, onClose }) {
 
         <p role="alert" className="min-h-5 text-sm text-red-700">{error}</p>
 
-        <button type="submit" disabled={pending} className="rounded-md bg-primary px-5 py-3 font-semibold text-cream hover:bg-primary-dark disabled:opacity-60">
+        <button type="submit" disabled={pending} className="rounded-full bg-primary px-5 py-3 font-semibold text-cream transition duration-300 hover:bg-primary-dark disabled:opacity-60">
           {pending ? 'Please wait…' : isSignUp ? 'Sign up' : 'Sign in'}
         </button>
         <p className="text-center text-sm text-muted">

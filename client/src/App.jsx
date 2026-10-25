@@ -1,22 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { fetchBooks, fetchEvents } from './lib/api.js'
+import { useRoute } from './lib/route.js'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
-import Collection from './components/Collection.jsx'
-import StaffPicks from './components/StaffPicks.jsx'
-import Events from './components/Events.jsx'
-import Footer from './components/Footer.jsx'
-import BasketDialog from './components/BasketDialog.jsx'
 import Perks from './components/Perks.jsx'
 import Genres from './components/Genres.jsx'
+import Collection from './components/Collection.jsx'
+import StaffPicks from './components/StaffPicks.jsx'
+import Insights from './components/Insights.jsx'
 import HowItWorks from './components/HowItWorks.jsx'
+import Story from './components/Story.jsx'
+import Team from './components/Team.jsx'
 import Testimonials from './components/Testimonials.jsx'
+import Events from './components/Events.jsx'
+import Visit from './components/Visit.jsx'
 import Faq from './components/Faq.jsx'
 import Newsletter from './components/Newsletter.jsx'
+import Footer from './components/Footer.jsx'
+import Account from './components/Account.jsx'
+import BasketDialog from './components/BasketDialog.jsx'
 import BookDialog from './components/BookDialog.jsx'
 import { ShelfSkeleton, EventsSkeleton } from './components/Skeletons.jsx'
 
 const BASKET_KEY = 'reading-room-basket'
+const MAX_QTY = 9
 
 function loadBasket() {
   try {
@@ -28,8 +35,10 @@ function loadBasket() {
 }
 
 export default function App() {
+  const route = useRoute()
   const [quantities, setQuantities] = useState(loadBasket)
   const [basketOpen, setBasketOpen] = useState(false)
+  const [selectedId, setSelectedId] = useState(null)
   const [query, setQuery] = useState('')
   const [books, setBooks] = useState([])
   const [events, setEvents] = useState([])
@@ -70,10 +79,37 @@ export default function App() {
     })
   }, [status, books])
 
+  // Moving between the landing page and account pages: start account pages at the top, and when
+  // returning home through a section link ("#collection"), scroll to that section once it is rendered.
+  const previousRoute = useRef(route)
+  useEffect(() => {
+    const was = previousRoute.current
+    previousRoute.current = route
+    if (route !== 'home') {
+      window.scrollTo(0, 0)
+      return
+    }
+    const id = window.location.hash.slice(1)
+    if (was !== 'home' && id && !id.startsWith('/')) requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView())
+    else if (was !== 'home') window.scrollTo(0, 0)
+  }, [route])
+
   const setQuantity = (id, qty) => setQuantities((prev) => ({ ...prev, [id]: qty }))
   const cartCount = Object.values(quantities).reduce((sum, q) => sum + q, 0)
 
-  const [selectedId, setSelectedId] = useState(null)
+  // "Order again": add a past order's books back to the basket (only ones still on the shelves) and show it.
+  const reorder = (items) => {
+    const ids = new Set(books.map((b) => b.id))
+    setQuantities((prev) => {
+      const next = { ...prev }
+      for (const { bookId, quantity } of items) {
+        if (ids.has(bookId)) next[bookId] = Math.min(MAX_QTY, (next[bookId] ?? 0) + quantity)
+      }
+      return next
+    })
+    setBasketOpen(true)
+  }
+
   const selected = books.find((b) => b.id === selectedId)
   const shelf = { quantities, onQuantityChange: setQuantity, onOpenBook: (b) => setSelectedId(b.id) }
   const pickGenre = (tag) => {
@@ -83,43 +119,54 @@ export default function App() {
   const needle = query.trim().toLowerCase()
   const matches = (b) => !needle || [b.title, b.author, b.tag].some((s) => s.toLowerCase().includes(needle))
   const picks = books.filter((b) => b.staffPick && matches(b))
+  const ready = status === 'ready'
 
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-20 focus:bg-primary focus:px-5 focus:py-2 focus:text-cream">
         Skip to content
       </a>
-      <Header cartCount={cartCount} onOpenBasket={() => setBasketOpen(true)} />
+      <Header cartCount={cartCount} onOpenBasket={() => setBasketOpen(true)} route={route} />
       {basketOpen && (
         <BasketDialog books={books} quantities={quantities} onQuantityChange={setQuantity} onClear={() => setQuantities({})} onClose={() => setBasketOpen(false)} />
       )}
       <main id="main">
-        <Hero books={books} loading={status === 'loading'} />
-        <Perks />
-        {status === 'ready' ? (
-          <>
-            <Genres books={books} onPick={pickGenre} />
-            <Collection books={books.filter((b) => !b.staffPick && matches(b))} query={query} onQueryChange={setQuery} {...shelf} />
-            {picks.length > 0 && <StaffPicks books={picks} {...shelf} />}
-          </>
-        ) : status === 'loading' ? (
-          <div aria-busy="true">
-            <p role="status" className="sr-only">Loading the shelves…</p>
-            <ShelfSkeleton />
-          </div>
+        {route !== 'home' ? (
+          <Account route={route} onReorder={reorder} />
         ) : (
-          <section aria-live="polite" className="mx-auto w-full max-w-6xl px-5 py-24 text-center sm:px-8">
-            <p className="mb-4 text-primary">We couldn't load the books just now.</p>
-            <button type="button" onClick={() => setAttempt((n) => n + 1)} className="rounded-md border-2 border-primary px-5 py-2 font-semibold text-primary hover:bg-primary hover:text-cream">
-              Try again
-            </button>
-          </section>
+          <>
+            <Hero books={books} loading={status === 'loading'} />
+            <Perks />
+            {ready ? (
+              <>
+                <Genres books={books} onPick={pickGenre} />
+                <Collection books={books.filter((b) => !b.staffPick && matches(b))} query={query} onQueryChange={setQuery} {...shelf} />
+                {picks.length > 0 && <StaffPicks books={picks} {...shelf} />}
+                <Insights books={books} />
+              </>
+            ) : status === 'loading' ? (
+              <div aria-busy="true">
+                <p role="status" className="sr-only">Loading the shelves…</p>
+                <ShelfSkeleton />
+              </div>
+            ) : (
+              <section aria-live="polite" className="mx-auto w-full max-w-6xl px-5 py-24 text-center sm:px-8">
+                <p className="mb-4 text-primary">We couldn't load the books just now.</p>
+                <button type="button" onClick={() => setAttempt((n) => n + 1)} className="rounded-full border-2 border-primary px-6 py-2 font-semibold text-primary transition hover:bg-primary hover:text-cream">
+                  Try again
+                </button>
+              </section>
+            )}
+            <HowItWorks />
+            <Story />
+            {ready && <Team books={books} onOpenBook={(b) => setSelectedId(b.id)} />}
+            <Testimonials />
+            {ready ? <Events events={events} /> : status === 'loading' && <EventsSkeleton />}
+            <Visit />
+            <Faq />
+            <Newsletter />
+          </>
         )}
-        <HowItWorks />
-        <Testimonials />
-        {status === 'ready' ? <Events events={events} /> : status === 'loading' && <EventsSkeleton />}
-        <Faq />
-        <Newsletter />
       </main>
       <Footer />
       {selected && (

@@ -14,7 +14,11 @@ An independent bookstore site built with React, Vite and Tailwind CSS.
 - Search by title, author or genre
 - Basket panel (saved in the browser) with pickup checkout for signed-in users: orders are stored in Postgres, priced on the server and paid in store
 - Click a cover or title for a book detail dialog
-- Browse by genre, how reserving works, reader reviews (sample), FAQ and a newsletter signup
+- Browse by genre, plus "The Shelves at a Glance": animated stats, a Fiction vs Nonfiction donut, books per genre and a price spread, all computed from the live catalogue
+- Our story timeline (sample), booksellers (built from the staff-pick bylines), reader reviews (sample), FAQ and a newsletter signup
+- Plan Your Visit: weekly opening-hours chart with a live open/closed status
+- Account area (`#/orders`, `#/profile`): order history with cancel and order again, edit your name, change your password
+- Scroll-reveal animations, count-up stats and smooth dialogs; all respect `prefers-reduced-motion`
 - Upcoming events section
 - Book covers and links served from Open Library by ISBN
 
@@ -62,6 +66,8 @@ Local Postgres with Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -e POST
 | `GET /api/events`      | Upcoming events                     |
 | `GET /api/health`      | Liveness check                      |
 | `POST /api/subscribe`  | Newsletter signup. Body: `{ "email": "<address>" }` |
+| `GET /api/orders`      | Your orders with line items (requires sign-in) |
+| `POST /api/orders/:id/cancel` | Cancel one of your own reserved orders |
 | `POST /api/orders`     | Place a pickup order (requires sign-in). Body: `{ "items": { "<bookId>": <quantity> } }` |
 | `/api/auth/*`          | Better Auth: sign-up, sign-in, sign-out, get-session |
 
@@ -73,7 +79,7 @@ Local Postgres with Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -e POST
 
 ## Tech stack
 
-React 18, Vite 6, Tailwind CSS 4 (client). Node, Express 5, PostgreSQL (`pg`) and Better Auth (server).
+React 18, Vite 6, Tailwind CSS 4 (client) with self-hosted Fraunces and Inter fonts (`@fontsource-variable`). Node, Express 5, PostgreSQL (`pg`), Better Auth, `helmet` and `express-rate-limit` (server).
 
 ## Project structure
 

@@ -13,7 +13,7 @@ export default function BookDialog({ book, quantity, onQuantityChange, onClose }
   }, [])
 
   return (
-    <dialog ref={dialogRef} onClose={onClose} onClick={(e) => e.target === e.currentTarget && onClose()} aria-labelledby="book-title" className="m-auto max-h-[calc(100dvh-2rem)] w-[min(44rem,calc(100%-2rem))] overflow-y-auto rounded-md bg-surface p-0 text-ink backdrop:bg-black/50">
+    <dialog ref={dialogRef} onClose={onClose} onClick={(e) => e.target === e.currentTarget && onClose()} aria-labelledby="book-title" className="m-auto max-h-[calc(100dvh-2rem)] w-[min(44rem,calc(100%-2rem))] overflow-y-auto rounded-3xl bg-surface p-0 text-ink shadow-lift open:motion-safe:animate-rise backdrop:bg-black/50 backdrop:backdrop-blur-sm">
       <div className="relative grid gap-6 p-6 sm:grid-cols-[13rem_1fr] sm:gap-8 sm:p-8">
         <button type="button" onClick={onClose} aria-label="Close" className="absolute right-4 top-3 text-2xl leading-none text-muted hover:text-primary">×</button>
 
@@ -23,7 +23,7 @@ export default function BookDialog({ book, quantity, onQuantityChange, onClose }
 
         <div className="flex min-w-0 flex-col">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-accent">{tag} · {category}</p>
-          <h2 id="book-title" className="mb-1 break-words font-heading text-3xl leading-tight text-primary">{title}</h2>
+          <h2 id="book-title" className="mb-1 break-words font-heading text-3xl font-semibold leading-tight text-primary">{title}</h2>
           <p className="mb-4 text-lg text-muted">by {author}</p>
 
           {staffPick && (
@@ -37,7 +37,7 @@ export default function BookDialog({ book, quantity, onQuantityChange, onClose }
 
           <div className="mb-4 flex min-h-10 items-center gap-3">
             {quantity === 0 ? (
-              <button type="button" onClick={() => onQuantityChange(1)} className="rounded-md bg-primary px-6 py-2.5 font-semibold text-cream transition hover:bg-primary-dark">
+              <button type="button" onClick={() => onQuantityChange(1)} className="rounded-full bg-primary px-7 py-3 font-semibold text-cream transition duration-300 hover:-translate-y-0.5 hover:bg-primary-dark">
                 Add to basket
               </button>
             ) : (

@@ -117,6 +117,11 @@ function AccountMenu({ session, onAuth, onOpen }) {
             <>
               <p className="truncate font-semibold text-primary">{session.user.name}</p>
               <p className="mb-3 truncate text-sm text-muted">{session.user.email}</p>
+              <div className="mb-3 space-y-1 border-y border-line py-2">
+                {[['#/orders', 'My orders'], ['#/profile', 'My profile']].map(([href, label]) => (
+                  <a key={href} href={href} role="menuitem" onClick={() => setOpen(false)} className="block rounded-md px-2 py-1.5 font-medium text-primary no-underline transition-colors hover:bg-alt hover:text-accent">{label}</a>
+                ))}
+              </div>
               <button type="button" role="menuitem" onClick={() => { setOpen(false); signOut() }} className={`${outlineBtn} w-full`}>
                 Sign out
               </button>
@@ -135,12 +140,13 @@ function AccountMenu({ session, onAuth, onOpen }) {
   )
 }
 
-export default function Header({ cartCount, onOpenBasket }) {
+export default function Header({ cartCount, onOpenBasket, route = 'home' }) {
   const [open, setOpen] = useState(false)
   const [authMode, setAuthMode] = useState(null)
   const [scrolled, setScrolled] = useState(false)
   const { data: session, isPending } = useSession()
-  const active = useActiveSection()
+  const scrollActive = useActiveSection()
+  const active = route === 'home' ? scrollActive : null
   const close = () => setOpen(false)
 
   useEffect(() => {
@@ -153,7 +159,10 @@ export default function Header({ cartCount, onOpenBasket }) {
   const goToSearch = () => {
     close()
     const input = document.getElementById('book-search')
-    if (!input) return document.getElementById('collection')?.scrollIntoView()
+    if (!input) {
+      window.location.hash = '#collection'
+      return
+    }
     input.scrollIntoView({ block: 'center' })
     input.focus({ preventScroll: true })
   }
@@ -205,7 +214,7 @@ export default function Header({ cartCount, onOpenBasket }) {
                 </li>
               ))}
               <li className="py-2 md:py-0">
-                <a href="#visit" onClick={close} className="inline-block rounded-md bg-accent px-4 py-1.5 text-[0.95rem] font-medium text-white no-underline hover:bg-accent-dark">
+                <a href="#visit" onClick={close} className="inline-block rounded-full bg-accent px-5 py-1.5 text-[0.95rem] font-semibold text-white no-underline transition duration-300 hover:-translate-y-0.5 hover:bg-accent-dark">
                   Visit Us
                 </a>
               </li>
