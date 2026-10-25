@@ -14,6 +14,7 @@ import Testimonials from './components/Testimonials.jsx'
 import Events from './components/Events.jsx'
 import Visit from './components/Visit.jsx'
 import Faq from './components/Faq.jsx'
+import GetStarted from './components/GetStarted.jsx'
 import Newsletter from './components/Newsletter.jsx'
 import Footer from './components/Footer.jsx'
 import Account from './components/Account.jsx'
@@ -177,6 +178,7 @@ export default function App() {
             {ready ? <Events events={events} /> : status === 'loading' && <EventsSkeleton />}
             <Visit />
             <Faq />
+            <GetStarted books={books} />
             <Newsletter />
           </>
         )}
