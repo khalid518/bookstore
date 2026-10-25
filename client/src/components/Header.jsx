@@ -12,7 +12,9 @@ const links = [
 
 const linkClass = 'block border-b-2 border-transparent py-2 text-[0.95rem] font-medium text-primary no-underline hover:border-accent md:inline-block md:py-1'
 
-export default function Header({ cartCount }) {
+const basketBtn = 'text-sm font-semibold text-primary underline-offset-4 hover:underline'
+
+export default function Header({ cartCount, onOpenBasket }) {
   const [open, setOpen] = useState(false)
   const [authMode, setAuthMode] = useState(null)
   const { data: session, isPending } = useSession()
@@ -26,7 +28,7 @@ export default function Header({ cartCount }) {
         </a>
 
         <div className="flex items-center gap-3 md:hidden">
-          <span className="text-sm font-semibold text-primary" aria-live="polite">Basket: {cartCount}</span>
+          <button type="button" onClick={onOpenBasket} className={basketBtn} aria-live="polite">Basket: {cartCount}</button>
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
@@ -54,7 +56,9 @@ export default function Header({ cartCount }) {
                 Visit Us
               </a>
             </li>
-            <li className="hidden text-sm font-semibold text-primary md:block">Basket: {cartCount}</li>
+            <li className="hidden md:block">
+              <button type="button" onClick={onOpenBasket} className={basketBtn} aria-live="polite">Basket: {cartCount}</button>
+            </li>
             {!isPending && (
               <li className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2 md:border-l md:border-line md:py-0 md:pl-5">
                 {session ? (

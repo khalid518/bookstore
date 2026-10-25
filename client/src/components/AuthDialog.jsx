@@ -12,8 +12,7 @@ export default function AuthDialog({ mode: initialMode, onClose }) {
 
   useEffect(() => {
     const dialog = dialogRef.current
-    dialog.showModal()
-    return () => dialog.close()
+    if (!dialog.open) dialog.showModal()
   }, [])
 
   const submit = async (e) => {
