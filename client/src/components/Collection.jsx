@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import BookCard from './BookCard.jsx'
 import SectionHead from './SectionHead.jsx'
 
 const filters = ['All', 'Fiction', 'Nonfiction']
 
-export default function Collection({ books, quantities, onQuantityChange, query, onQueryChange }) {
+export default function Collection({ books, quantities, onQuantityChange, onOpenBook, query, onQueryChange }) {
   const [filter, setFilter] = useState('All')
+  // A search (typed, or picked from Browse by Genre) looks across every category.
+  useEffect(() => {
+    if (query.trim()) setFilter('All')
+  }, [query])
   const visible = filter === 'All' ? books : books.filter((b) => b.category === filter)
 
   return (
@@ -51,7 +55,7 @@ export default function Collection({ books, quantities, onQuantityChange, query,
         )}
         <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visible.map((b) => (
-            <BookCard key={b.id} book={b} quantity={quantities[b.id] ?? 0} onQuantityChange={(q) => onQuantityChange(b.id, q)} />
+            <BookCard key={b.id} book={b} quantity={quantities[b.id] ?? 0} onQuantityChange={(q) => onQuantityChange(b.id, q)} onOpen={() => onOpenBook(b)} />
           ))}
         </ul>
       </div>

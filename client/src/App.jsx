@@ -8,6 +8,13 @@ import Events from './components/Events.jsx'
 import Footer from './components/Footer.jsx'
 import BasketDialog from './components/BasketDialog.jsx'
 import Perks from './components/Perks.jsx'
+import Genres from './components/Genres.jsx'
+import HowItWorks from './components/HowItWorks.jsx'
+import Testimonials from './components/Testimonials.jsx'
+import Faq from './components/Faq.jsx'
+import Newsletter from './components/Newsletter.jsx'
+import BookDialog from './components/BookDialog.jsx'
+import { ShelfSkeleton, EventsSkeleton } from './components/Skeletons.jsx'
 
 const BASKET_KEY = 'reading-room-basket'
 
@@ -66,7 +73,13 @@ export default function App() {
   const setQuantity = (id, qty) => setQuantities((prev) => ({ ...prev, [id]: qty }))
   const cartCount = Object.values(quantities).reduce((sum, q) => sum + q, 0)
 
-  const shelf = { quantities, onQuantityChange: setQuantity }
+  const [selectedId, setSelectedId] = useState(null)
+  const selected = books.find((b) => b.id === selectedId)
+  const shelf = { quantities, onQuantityChange: setQuantity, onOpenBook: (b) => setSelectedId(b.id) }
+  const pickGenre = (tag) => {
+    setQuery(tag)
+    document.getElementById('collection')?.scrollIntoView()
+  }
   const needle = query.trim().toLowerCase()
   const matches = (b) => !needle || [b.title, b.author, b.tag].some((s) => s.toLowerCase().includes(needle))
   const picks = books.filter((b) => b.staffPick && matches(b))
@@ -81,30 +94,37 @@ export default function App() {
         <BasketDialog books={books} quantities={quantities} onQuantityChange={setQuantity} onClear={() => setQuantities({})} onClose={() => setBasketOpen(false)} />
       )}
       <main id="main">
-        <Hero books={books} />
+        <Hero books={books} loading={status === 'loading'} />
         <Perks />
         {status === 'ready' ? (
           <>
+            <Genres books={books} onPick={pickGenre} />
             <Collection books={books.filter((b) => !b.staffPick && matches(b))} query={query} onQueryChange={setQuery} {...shelf} />
             {picks.length > 0 && <StaffPicks books={picks} {...shelf} />}
-            <Events events={events} />
           </>
+        ) : status === 'loading' ? (
+          <div aria-busy="true">
+            <p role="status" className="sr-only">Loading the shelves…</p>
+            <ShelfSkeleton />
+          </div>
         ) : (
           <section aria-live="polite" className="mx-auto w-full max-w-6xl px-5 py-24 text-center sm:px-8">
-            {status === 'loading' ? (
-              <p className="text-muted">Loading the shelves…</p>
-            ) : (
-              <>
-                <p className="mb-4 text-primary">We couldn't load the books just now.</p>
-                <button type="button" onClick={() => setAttempt((n) => n + 1)} className="rounded-md border-2 border-primary px-5 py-2 font-semibold text-primary hover:bg-primary hover:text-cream">
-                  Try again
-                </button>
-              </>
-            )}
+            <p className="mb-4 text-primary">We couldn't load the books just now.</p>
+            <button type="button" onClick={() => setAttempt((n) => n + 1)} className="rounded-md border-2 border-primary px-5 py-2 font-semibold text-primary hover:bg-primary hover:text-cream">
+              Try again
+            </button>
           </section>
         )}
+        <HowItWorks />
+        <Testimonials />
+        {status === 'ready' ? <Events events={events} /> : status === 'loading' && <EventsSkeleton />}
+        <Faq />
+        <Newsletter />
       </main>
       <Footer />
+      {selected && (
+        <BookDialog book={selected} quantity={quantities[selected.id] ?? 0} onQuantityChange={(q) => setQuantity(selected.id, q)} onClose={() => setSelectedId(null)} />
+      )}
     </>
   )
 }

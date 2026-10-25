@@ -7,7 +7,7 @@ const positions = [
   'right-[8%] rotate-[8deg]',
 ]
 
-export default function Hero({ books }) {
+export default function Hero({ books, loading }) {
   const shelf = shelfIds.map((id) => books.find((b) => b.id === id)).filter(Boolean)
   return (
     <section id="home" aria-labelledby="hero-title" className="bg-gradient-to-b from-alt to-cream py-16">
@@ -34,6 +34,9 @@ export default function Hero({ books }) {
           aria-label="A fanned stack of three book covers: Circe, Piranesi and A Gentleman in Moscow, resting on a warm wooden shelf"
           className="relative isolate aspect-square w-full max-w-md min-w-0 overflow-hidden rounded-md bg-primary lg:max-w-[30rem] lg:flex-[0_1_45%]"
         >
+          {loading && shelf.length === 0 && positions.map((pos, i) => (
+            <div key={i} className={`absolute bottom-[14%] aspect-[2/3] w-[36%] origin-bottom rounded-sm bg-cream/20 motion-safe:animate-pulse ${pos}`} />
+          ))}
           {shelf.map((b, i) => (
             <BookCover key={b.id} title={b.title} author={b.author} src={b.coverUrl} className={`absolute bottom-[14%] w-[36%] origin-bottom rounded-sm shadow-xl ${positions[i]}`} />
           ))}

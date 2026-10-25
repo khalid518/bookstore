@@ -13,6 +13,8 @@ An independent bookstore site built with React, Vite and Tailwind CSS.
 - Responsive sticky header with an animated mobile menu
 - Search by title, author or genre
 - Basket panel (saved in the browser) with pickup checkout for signed-in users: orders are stored in Postgres, priced on the server and paid in store
+- Click a cover or title for a book detail dialog
+- Browse by genre, how reserving works, reader reviews (sample), FAQ and a newsletter signup
 - Upcoming events section
 - Book covers and links served from Open Library by ISBN
 
@@ -59,6 +61,7 @@ Local Postgres with Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -e POST
 | `GET /api/books`       | All books (staff picks have `staffPick`) |
 | `GET /api/events`      | Upcoming events                     |
 | `GET /api/health`      | Liveness check                      |
+| `POST /api/subscribe`  | Newsletter signup. Body: `{ "email": "<address>" }` |
 | `POST /api/orders`     | Place a pickup order (requires sign-in). Body: `{ "items": { "<bookId>": <quantity> } }` |
 | `/api/auth/*`          | Better Auth: sign-up, sign-in, sign-out, get-session |
 

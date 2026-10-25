@@ -62,6 +62,20 @@ router.get('/events', async (req, res, next) => {
   }
 })
 
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// Newsletter signup. Repeat signups are accepted silently so the endpoint can't be used to probe the list.
+router.post('/subscribe', async (req, res, next) => {
+  try {
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
+    if (email.length > 254 || !EMAIL.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' })
+    await pool.query('INSERT INTO subscribers (email) VALUES ($1) ON CONFLICT (email) DO NOTHING', [email])
+    res.status(201).json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
+
 const MAX_QTY = 9
 const MAX_LINES = 50
 

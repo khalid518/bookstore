@@ -86,3 +86,9 @@ CREATE TABLE IF NOT EXISTS order_items (
 );
 
 CREATE INDEX IF NOT EXISTS orders_user_idx ON orders (user_id);
+
+-- Newsletter signups from the landing page.
+CREATE TABLE IF NOT EXISTS subscribers (
+  email      TEXT PRIMARY KEY,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

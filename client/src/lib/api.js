@@ -17,3 +17,13 @@ export async function placeOrder(items) {
   if (!res.ok) throw new Error(body.error || 'Could not place your order. Please try again.')
   return body
 }
+
+export async function subscribe(email) {
+  const res = await fetch('/api/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(body.error || 'Could not sign you up. Please try again.')
+}
