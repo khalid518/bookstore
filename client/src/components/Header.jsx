@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSession, signOut } from '../lib/auth.js'
 import AuthDialog from './AuthDialog.jsx'
+import Logo from './Logo.jsx'
 
 const links = [
   { href: '#home', label: 'Home' },
@@ -20,8 +21,8 @@ export default function Header({ cartCount }) {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-surface">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-8 px-5 py-3 sm:px-8">
-        <a href="#home" onClick={close} aria-label="The Reading Room, home" className="font-heading text-2xl font-bold italic text-primary no-underline">
-          The Reading Room
+        <a href="#home" onClick={close} aria-label="The Reading Room, home" className="no-underline">
+          <Logo />
         </a>
 
         <div className="flex items-center gap-3 md:hidden">

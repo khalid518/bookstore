@@ -1,3 +1,5 @@
+import Logo from './Logo.jsx'
+
 const explore = [
   ['#home', 'Home'],
   ['#collection', 'Collection'],
@@ -13,7 +15,7 @@ export default function Footer() {
     <footer id="visit" className="bg-primary pt-16 text-cream">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 sm:flex-row sm:flex-wrap sm:px-8 lg:flex-nowrap">
         <div className="min-w-0 sm:flex-[2_1_18rem]">
-          <h2 className="mb-2 font-heading text-2xl italic text-gold">The Reading Room</h2>
+          <h2 className="mb-3"><Logo onDark /></h2>
           <p>A small, independent bookshop for curious readers. Books, tea and good company since 1994.</p>
         </div>
         <nav aria-label="Footer" className="min-w-0 sm:flex-[1_1_12rem]">
