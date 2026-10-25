@@ -33,6 +33,11 @@ const toEvent = (r) => {
     id: r.id,
     title: r.title,
     blurb: r.blurb,
+    description: r.description ?? r.blurb,
+    host: r.host,
+    durationMinutes: r.duration_minutes,
+    admission: r.admission,
+    highlights: r.highlights ?? [],
     datetime: r.datetime,
     month: MONTHS[m - 1],
     day: d,
@@ -54,7 +59,7 @@ router.get('/books', async (req, res, next) => {
 router.get('/events', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, title, blurb, to_char(starts_at, 'YYYY-MM-DD"T"HH24:MI') AS datetime FROM events ORDER BY starts_at`,
+      `SELECT id, title, blurb, description, host, duration_minutes, admission, highlights, to_char(starts_at, 'YYYY-MM-DD"T"HH24:MI') AS datetime FROM events ORDER BY starts_at`,
     )
     res.json(rows.map(toEvent))
   } catch (err) {

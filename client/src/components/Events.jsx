@@ -15,12 +15,14 @@ export default function Events({ events }) {
                   <span className="font-heading text-3xl font-semibold">{e.day}</span>
                 </time>
                 <div className="min-w-0 flex-1">
-                  <h3 className="mb-1 font-heading text-xl font-semibold text-primary">{e.title}</h3>
+                  <h3 className="mb-1 font-heading text-xl font-semibold text-primary">
+                    <a href={`#/events/${e.id}`} className="text-primary no-underline transition-colors hover:text-accent">{e.title}</a>
+                  </h3>
                   <p className="mb-1 text-sm font-semibold text-accent">{e.when}</p>
                   <p className="text-muted">{e.blurb}</p>
                 </div>
                 <a
-                  href={`mailto:hello@thereadingroom.example?subject=${encodeURIComponent(e.title)}`}
+                  href={`#/events/${e.id}`}
                   className="rounded-full border-2 border-primary px-6 py-2.5 text-center font-semibold text-primary no-underline transition duration-300 hover:bg-primary hover:text-cream"
                 >
                   Event Details<span className="sr-only">: {e.title}</span>

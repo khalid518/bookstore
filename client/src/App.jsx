@@ -18,6 +18,7 @@ import Faq from './components/Faq.jsx'
 import Newsletter from './components/Newsletter.jsx'
 import Footer from './components/Footer.jsx'
 import Account from './components/Account.jsx'
+import EventPage from './components/EventPage.jsx'
 import BasketDialog from './components/BasketDialog.jsx'
 import BookDialog from './components/BookDialog.jsx'
 import { ShelfSkeleton, EventsSkeleton } from './components/Skeletons.jsx'
@@ -35,7 +36,7 @@ function loadBasket() {
 }
 
 export default function App() {
-  const route = useRoute()
+  const { name: route, id: routeId } = useRoute()
   const [quantities, setQuantities] = useState(loadBasket)
   const [basketOpen, setBasketOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
@@ -86,13 +87,13 @@ export default function App() {
     const was = previousRoute.current
     previousRoute.current = route
     if (route !== 'home') {
-      window.scrollTo(0, 0)
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
       return
     }
     const id = window.location.hash.slice(1)
     if (was !== 'home' && id && !id.startsWith('/')) requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView())
-    else if (was !== 'home') window.scrollTo(0, 0)
-  }, [route])
+    else if (was !== 'home') window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [route, routeId])
 
   const setQuantity = (id, qty) => setQuantities((prev) => ({ ...prev, [id]: qty }))
   const cartCount = Object.values(quantities).reduce((sum, q) => sum + q, 0)
@@ -131,7 +132,9 @@ export default function App() {
         <BasketDialog books={books} quantities={quantities} onQuantityChange={setQuantity} onClear={() => setQuantities({})} onClose={() => setBasketOpen(false)} />
       )}
       <main id="main">
-        {route !== 'home' ? (
+        {route === 'event' ? (
+          <EventPage event={events.find((e) => e.id === routeId)} events={events} status={status} />
+        ) : route === 'orders' || route === 'profile' ? (
           <Account route={route} onReorder={reorder} />
         ) : (
           <>

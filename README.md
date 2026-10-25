@@ -19,7 +19,7 @@ An independent bookstore site built with React, Vite and Tailwind CSS.
 - Plan Your Visit: weekly opening-hours chart with a live open/closed status
 - Account area (`#/orders`, `#/profile`): order history with cancel and order again, edit your name, change your password
 - Scroll-reveal animations, count-up stats and smooth dialogs; all respect `prefers-reduced-motion`
-- Upcoming events section
+- Upcoming events, each with its own details page (`#/events/<id>`): description, host, what to expect, directions, add to calendar (.ics) and share
 - Book covers and links served from Open Library by ISBN
 
 ## Getting started
@@ -99,7 +99,7 @@ server/                 Express API
 
 ## Editing content
 
-Books and events are rows in Postgres. Edit `server/scripts/data/books.js` or `events.js` and run `npm run seed --prefix server`. The cover and link are generated from the ISBN:
+Books and events are rows in Postgres. Edit `server/scripts/data/books.js` or `events.js` and run `npm run seed --prefix server`. Events carry a `description`, `host`, `durationMinutes`, `admission` and a list of `highlights` for the details page. The cover and link are generated from the ISBN:
 
 ```js
 { id: 'circe', title: 'Circe', author: 'Madeline Miller', tag: 'Myth & Fantasy', category: 'Fiction', price: 18.99, isbn: '9780316556347' }

@@ -19,6 +19,13 @@ CREATE TABLE IF NOT EXISTS events (
   blurb     TEXT NOT NULL
 );
 
+-- Richer event details (added after the first release, so these are idempotent ALTERs).
+ALTER TABLE events ADD COLUMN IF NOT EXISTS description      TEXT;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS host             TEXT;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS duration_minutes INTEGER NOT NULL DEFAULT 90;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS admission        TEXT NOT NULL DEFAULT 'Free';
+ALTER TABLE events ADD COLUMN IF NOT EXISTS highlights       TEXT[] NOT NULL DEFAULT '{}';
+
 -- Better Auth tables (users, sessions, credentials)
 CREATE TABLE IF NOT EXISTS "user" (
   id              TEXT PRIMARY KEY,

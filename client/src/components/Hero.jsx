@@ -22,10 +22,6 @@ export default function Hero({ books, loading }) {
 
       <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center gap-12 px-5 py-16 sm:px-8 lg:flex-row lg:gap-16 lg:py-24">
         <div className="min-w-0 lg:flex-1">
-          <p style={rise(0)} className="motion-safe:animate-rise mb-4 inline-flex items-center gap-2 rounded-full border border-line bg-surface/80 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-accent backdrop-blur">
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
-            Independent bookseller since 1994
-          </p>
           <h1 id="hero-title" style={rise(80)} className="motion-safe:animate-rise mb-6 font-heading text-[2.6rem] font-semibold leading-[1.05] text-primary sm:text-6xl lg:text-7xl">
             Find your next <span className="italic text-accent">favourite</span> book
           </h1>

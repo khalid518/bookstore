@@ -18,9 +18,13 @@ try {
   }
   for (const e of events) {
     await client.query(
-      `INSERT INTO events (id, title, starts_at, blurb) VALUES ($1, $2, $3, $4)
-       ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, starts_at = EXCLUDED.starts_at, blurb = EXCLUDED.blurb`,
-      [e.id, e.title, e.startsAt, e.blurb],
+      `INSERT INTO events (id, title, starts_at, blurb, description, host, duration_minutes, admission, highlights)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       ON CONFLICT (id) DO UPDATE SET
+         title = EXCLUDED.title, starts_at = EXCLUDED.starts_at, blurb = EXCLUDED.blurb,
+         description = EXCLUDED.description, host = EXCLUDED.host, duration_minutes = EXCLUDED.duration_minutes,
+         admission = EXCLUDED.admission, highlights = EXCLUDED.highlights`,
+      [e.id, e.title, e.startsAt, e.blurb, e.description, e.host, e.durationMinutes, e.admission, e.highlights],
     )
   }
   await client.query('COMMIT')

@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react'
 
-// Tiny hash router: "#/profile" and "#/orders" are account pages, anything else is the landing page.
-const routeFromHash = () => {
-  const hash = window.location.hash
-  if (hash === '#/profile') return 'profile'
-  if (hash === '#/orders') return 'orders'
-  return 'home'
+// Tiny hash router. "#/profile" and "#/orders" are account pages, "#/events/<id>" is an event page,
+// and anything else (including plain section anchors like "#collection") is the landing page.
+export function parseHash(hash) {
+  if (hash === '#/profile') return { name: 'profile' }
+  if (hash === '#/orders') return { name: 'orders' }
+  const event = hash.match(/^#\/events\/([\w-]+)$/)
+  if (event) return { name: 'event', id: event[1] }
+  return { name: 'home' }
 }
 
 export function useRoute() {
-  const [route, setRoute] = useState(routeFromHash)
+  const [hash, setHash] = useState(() => window.location.hash)
 
   useEffect(() => {
-    const onChange = () => setRoute(routeFromHash())
+    const onChange = () => setHash(window.location.hash)
     window.addEventListener('hashchange', onChange)
     return () => window.removeEventListener('hashchange', onChange)
   }, [])
 
-  return route
+  return parseHash(hash)
 }
