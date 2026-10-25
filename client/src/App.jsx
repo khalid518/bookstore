@@ -4,7 +4,6 @@ import { useRoute } from './lib/route.js'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
 import Perks from './components/Perks.jsx'
-import Genres from './components/Genres.jsx'
 import Collection from './components/Collection.jsx'
 import StaffPicks from './components/StaffPicks.jsx'
 import Insights from './components/Insights.jsx'
@@ -18,6 +17,8 @@ import Faq from './components/Faq.jsx'
 import Newsletter from './components/Newsletter.jsx'
 import Footer from './components/Footer.jsx'
 import Account from './components/Account.jsx'
+import BooksPage from './components/BooksPage.jsx'
+import SearchPalette from './components/SearchPalette.jsx'
 import EventPage from './components/EventPage.jsx'
 import BasketDialog from './components/BasketDialog.jsx'
 import BookDialog from './components/BookDialog.jsx'
@@ -36,11 +37,11 @@ function loadBasket() {
 }
 
 export default function App() {
-  const { name: route, id: routeId } = useRoute()
+  const { name: route, id: routeId, query: routeQuery, nav } = useRoute()
   const [quantities, setQuantities] = useState(loadBasket)
   const [basketOpen, setBasketOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
-  const [query, setQuery] = useState('')
+  const [searchOpen, setSearchOpen] = useState(false)
   const [books, setBooks] = useState([])
   const [events, setEvents] = useState([])
   const [status, setStatus] = useState('loading')
@@ -95,6 +96,20 @@ export default function App() {
     else if (was !== 'home') window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [route, routeId])
 
+  useEffect(() => {
+    const onKey = (e) => {
+      const typing = e.target.closest?.('input, textarea, select, [contenteditable="true"]')
+      const slash = e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey
+      const combo = e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)
+      if (slash || combo) {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   const setQuantity = (id, qty) => setQuantities((prev) => ({ ...prev, [id]: qty }))
   const cartCount = Object.values(quantities).reduce((sum, q) => sum + q, 0)
 
@@ -113,13 +128,7 @@ export default function App() {
 
   const selected = books.find((b) => b.id === selectedId)
   const shelf = { quantities, onQuantityChange: setQuantity, onOpenBook: (b) => setSelectedId(b.id) }
-  const pickGenre = (tag) => {
-    setQuery(tag)
-    document.getElementById('collection')?.scrollIntoView()
-  }
-  const needle = query.trim().toLowerCase()
-  const matches = (b) => !needle || [b.title, b.author, b.tag].some((s) => s.toLowerCase().includes(needle))
-  const picks = books.filter((b) => b.staffPick && matches(b))
+  const picks = books.filter((b) => b.staffPick)
   const ready = status === 'ready'
 
   return (
@@ -127,12 +136,14 @@ export default function App() {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-20 focus:bg-primary focus:px-5 focus:py-2 focus:text-cream">
         Skip to content
       </a>
-      <Header cartCount={cartCount} onOpenBasket={() => setBasketOpen(true)} route={route} />
+      <Header cartCount={cartCount} onOpenBasket={() => setBasketOpen(true)} onOpenSearch={() => setSearchOpen(true)} route={route} />
       {basketOpen && (
         <BasketDialog books={books} quantities={quantities} onQuantityChange={setQuantity} onClear={() => setQuantities({})} onClose={() => setBasketOpen(false)} />
       )}
       <main id="main">
-        {route === 'event' ? (
+        {route === 'books' ? (
+          <BooksPage query={routeQuery} nav={nav} quantities={quantities} onQuantityChange={setQuantity} onOpenBook={(b) => setSelectedId(b.id)} />
+        ) : route === 'event' ? (
           <EventPage event={events.find((e) => e.id === routeId)} events={events} status={status} />
         ) : route === 'orders' || route === 'profile' ? (
           <Account route={route} onReorder={reorder} />
@@ -142,8 +153,7 @@ export default function App() {
             <Perks />
             {ready ? (
               <>
-                <Genres books={books} onPick={pickGenre} />
-                <Collection books={books.filter((b) => !b.staffPick && matches(b))} query={query} onQueryChange={setQuery} {...shelf} />
+                <Collection books={books.filter((b) => !b.staffPick)} total={books.length} {...shelf} />
                 {picks.length > 0 && <StaffPicks books={picks} {...shelf} />}
                 <Insights books={books} />
               </>
@@ -172,6 +182,7 @@ export default function App() {
         )}
       </main>
       <Footer />
+      {searchOpen && <SearchPalette books={books} onClose={() => setSearchOpen(false)} onOpenBook={(b) => setSelectedId(b.id)} />}
       {selected && (
         <BookDialog book={selected} quantity={quantities[selected.id] ?? 0} onQuantityChange={(q) => setQuantity(selected.id, q)} onClose={() => setSelectedId(null)} />
       )}

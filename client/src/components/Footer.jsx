@@ -4,6 +4,7 @@ import { SUMMARY, ADDRESS, EMAIL } from '../lib/shop.js'
 const explore = [
   ['#home', 'Home'],
   ['#collection', 'Collection'],
+  ['#/books', 'All Books'],
   ['#staff-picks', 'Staff Picks'],
   ['#story', 'Our Story'],
   ['#events', 'Events'],

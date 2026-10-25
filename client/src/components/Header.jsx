@@ -3,18 +3,20 @@ import { useSession, signOut } from '../lib/auth.js'
 import AuthDialog from './AuthDialog.jsx'
 import Logo from './Logo.jsx'
 
+// Section links scroll the landing page; "All Books" is its own page (route).
 const links = [
-  { id: 'home', label: 'Home' },
-  { id: 'collection', label: 'Collection' },
-  { id: 'staff-picks', label: 'Staff Picks' },
-  { id: 'events', label: 'Events' },
+  { id: 'home', label: 'Home', href: '#home' },
+  { id: 'collection', label: 'Collection', href: '#collection' },
+  { id: 'books', label: 'All Books', href: '#/books', route: 'books' },
+  { id: 'staff-picks', label: 'Staff Picks', href: '#staff-picks' },
+  { id: 'events', label: 'Events', href: '#events' },
 ]
 
 const linkClass = (active) =>
-  `block border-b-2 py-2 text-[0.95rem] font-medium no-underline hover:border-accent md:inline-block md:py-1 ${active ? 'border-accent text-accent' : 'border-transparent text-primary'}`
+  `block border-b-2 py-2 text-[0.95rem] font-medium no-underline hover:border-accent xl:inline-block xl:py-1 ${active ? 'border-accent text-accent' : 'border-transparent text-primary'}`
 
 const iconBtn = 'relative flex h-9 w-9 shrink-0 items-center md:h-10 md:w-10 justify-center rounded-full text-primary transition hover:bg-alt'
-const outlineBtn = 'rounded-md border-2 border-primary px-4 py-1 text-[0.95rem] font-semibold text-primary hover:bg-primary hover:text-cream'
+const outlineBtn = 'rounded-full border-2 border-primary px-4 py-1 text-[0.95rem] font-semibold text-primary hover:bg-primary hover:text-cream'
 const stroke = { 'aria-hidden': true, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }
 
 const SearchIcon = () => (
@@ -140,7 +142,7 @@ function AccountMenu({ session, onAuth, onOpen }) {
   )
 }
 
-export default function Header({ cartCount, onOpenBasket, route = 'home' }) {
+export default function Header({ cartCount, onOpenBasket, onOpenSearch, route = 'home' }) {
   const [open, setOpen] = useState(false)
   const [authMode, setAuthMode] = useState(null)
   const [scrolled, setScrolled] = useState(false)
@@ -156,15 +158,9 @@ export default function Header({ cartCount, onOpenBasket, route = 'home' }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const goToSearch = () => {
+  const openSearch = () => {
     close()
-    const input = document.getElementById('book-search')
-    if (!input) {
-      window.location.hash = '#collection'
-      return
-    }
-    input.scrollIntoView({ block: 'center' })
-    input.focus({ preventScroll: true })
+    onOpenSearch()
   }
 
   const basket = (
@@ -181,13 +177,13 @@ export default function Header({ cartCount, onOpenBasket, route = 'home' }) {
   return (
     <header className={`sticky top-0 z-50 border-b border-line bg-surface/90 backdrop-blur transition-shadow ${scrolled ? 'shadow-md' : ''}`}>
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 px-5 py-2.5 sm:px-8">
-        <div className="flex w-full min-w-0 items-center justify-between gap-2 md:w-auto">
+        <div className="flex w-full min-w-0 items-center justify-between gap-2 xl:w-auto">
         <a href="#home" onClick={close} aria-label="The Reading Room, home" className="min-w-0 no-underline">
           <Logo />
         </a>
 
-        <div className="flex shrink-0 items-center md:hidden">
-          <button type="button" onClick={goToSearch} className={iconBtn} aria-label="Search books"><SearchIcon /></button>
+        <div className="flex shrink-0 items-center xl:hidden">
+          <button type="button" onClick={openSearch} className={iconBtn} aria-label="Search books"><SearchIcon /></button>
           {basket}
           <AccountMenu session={session} onAuth={setAuthMode} onOpen={close} />
           <button
@@ -205,27 +201,30 @@ export default function Header({ cartCount, onOpenBasket, route = 'home' }) {
         </div>
         </div>
 
-        <nav id="primary-nav" aria-label="Primary" className={`grid w-full transition-[grid-template-rows,visibility] duration-300 ease-out motion-reduce:transition-none md:block md:w-auto md:visible ${open ? 'visible grid-rows-[1fr]' : 'invisible grid-rows-[0fr]'}`}>
-          <div className="min-h-0 overflow-hidden md:overflow-visible">
-            <ul className="flex flex-col pt-2 md:flex-row md:items-center md:gap-x-5 md:pt-0">
-              {links.map((l) => (
-                <li key={l.id}>
-                  <a href={`#${l.id}`} onClick={close} aria-current={active === l.id ? 'location' : undefined} className={linkClass(active === l.id)}>{l.label}</a>
-                </li>
-              ))}
-              <li className="py-2 md:py-0">
+        <nav id="primary-nav" aria-label="Primary" className={`grid w-full transition-[grid-template-rows,visibility] duration-300 ease-out motion-reduce:transition-none xl:block xl:w-auto xl:visible ${open ? 'visible grid-rows-[1fr]' : 'invisible grid-rows-[0fr]'}`}>
+          <div className="min-h-0 overflow-hidden xl:overflow-visible">
+            <ul className="flex flex-col pt-2 xl:flex-row xl:items-center xl:gap-x-5 xl:pt-0">
+              {links.map((l) => {
+                const current = l.route ? route === l.route : active === l.id
+                return (
+                  <li key={l.id} className={l.id === 'home' ? 'xl:hidden' : undefined}>
+                    <a href={l.href} onClick={close} aria-current={current ? (l.route ? 'page' : 'location') : undefined} className={linkClass(current)}>{l.label}</a>
+                  </li>
+                )
+              })}
+              <li className="py-2 xl:py-0">
                 <a href="#visit" onClick={close} className="inline-block rounded-full bg-accent px-5 py-1.5 text-[0.95rem] font-semibold text-white no-underline transition duration-300 hover:-translate-y-0.5 hover:bg-accent-dark">
                   Visit Us
                 </a>
               </li>
 
-              <li className="hidden items-center gap-1 md:flex md:border-l md:border-line md:pl-4">
-                <button type="button" onClick={goToSearch} className={iconBtn} aria-label="Search books"><SearchIcon /></button>
+              <li className="hidden items-center gap-1 xl:flex xl:border-l xl:border-line xl:pl-4">
+                <button type="button" onClick={openSearch} className={iconBtn} aria-label="Search books (press /)" title="Search (press /)"><SearchIcon /></button>
                 {basket}
               </li>
 
               {!isPending && (
-                <li className="hidden md:block">
+                <li className="hidden xl:block">
                   {session ? (
                     <AccountMenu session={session} onAuth={setAuthMode} />
                   ) : (

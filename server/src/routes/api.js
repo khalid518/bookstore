@@ -56,6 +56,95 @@ router.get('/books', async (req, res, next) => {
   }
 })
 
+// ---- Catalogue: search, filters, sorting and pagination for the All Books page -------------------
+
+const SORTS = {
+  featured: 'position ASC',
+  'price-asc': 'price ASC, position ASC',
+  'price-desc': 'price DESC, position ASC',
+  title: 'title ASC',
+  author: 'author ASC, title ASC',
+}
+const PAGE_SIZE = 8
+const MAX_PAGE_SIZE = 24
+const CATEGORIES = ['Fiction', 'Nonfiction']
+
+const escapeLike = (term) => `%${term.replace(/[\\%_]/g, '\\$&')}%`
+const toNumber = (v) => (v === undefined || v === '' || !Number.isFinite(Number(v)) ? null : Number(v))
+
+function parseCatalogQuery(query) {
+  const text = (v) => (typeof v === 'string' ? v : '')
+  const q = text(query.q).trim().slice(0, 100)
+  const page = Math.max(1, Math.floor(toNumber(query.page) ?? 1))
+  const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, Math.floor(toNumber(query.pageSize) ?? PAGE_SIZE)))
+  return {
+    terms: q.split(/\s+/).filter(Boolean).slice(0, 6),
+    category: CATEGORIES.includes(query.category) ? query.category : null,
+    genres: text(query.genre).split(',').map((g) => g.trim()).filter(Boolean).slice(0, 12),
+    min: toNumber(query.min),
+    max: toNumber(query.max),
+    picks: query.picks === '1',
+    sort: Object.hasOwn(SORTS, query.sort) ? query.sort : 'featured',
+    page,
+    pageSize,
+  }
+}
+
+// Builds a parameterised WHERE clause. `omit` leaves one filter out so facet counts can show
+// what each option would return if chosen (e.g. genre counts ignore the genre filter itself).
+function catalogWhere(f, omit = '') {
+  const params = []
+  const parts = []
+  const add = (value) => params.push(value) && `$${params.length}`
+  if (omit !== 'q') {
+    for (const term of f.terms) {
+      const p = add(escapeLike(term))
+      parts.push(`(title ILIKE ${p} OR author ILIKE ${p} OR tag ILIKE ${p} OR category ILIKE ${p})`)
+    }
+  }
+  if (f.category && omit !== 'category') parts.push(`category = ${add(f.category)}`)
+  if (f.genres.length && omit !== 'genre') parts.push(`tag = ANY(${add(f.genres)})`)
+  if (omit !== 'price') {
+    if (f.min !== null) parts.push(`price >= ${add(f.min)}`)
+    if (f.max !== null) parts.push(`price <= ${add(f.max)}`)
+  }
+  if (f.picks && omit !== 'picks') parts.push('staff_quote IS NOT NULL')
+  return { sql: parts.length ? `WHERE ${parts.join(' AND ')}` : '', params }
+}
+
+router.get('/catalog', async (req, res, next) => {
+  try {
+    const f = parseCatalogQuery(req.query)
+    const main = catalogWhere(f)
+    const byCategory = catalogWhere(f, 'category')
+    const byGenre = catalogWhere(f, 'genre')
+
+    const [items, total, categories, genres, bounds] = await Promise.all([
+      pool.query(`SELECT * FROM books ${main.sql} ORDER BY ${SORTS[f.sort]} LIMIT ${f.pageSize} OFFSET ${(f.page - 1) * f.pageSize}`, main.params),
+      pool.query(`SELECT COUNT(*)::int AS n FROM books ${main.sql}`, main.params),
+      pool.query(`SELECT category AS value, COUNT(*)::int AS count FROM books ${byCategory.sql} GROUP BY category ORDER BY category`, byCategory.params),
+      pool.query(`SELECT tag AS value, COUNT(*)::int AS count FROM books ${byGenre.sql} GROUP BY tag ORDER BY count DESC, tag`, byGenre.params),
+      pool.query('SELECT MIN(price) AS min, MAX(price) AS max FROM books'),
+    ])
+
+    const count = total.rows[0].n
+    res.json({
+      items: items.rows.map(toBook),
+      total: count,
+      page: f.page,
+      pageSize: f.pageSize,
+      hasMore: f.page * f.pageSize < count,
+      facets: {
+        categories: categories.rows,
+        genres: genres.rows,
+        price: { min: Math.floor(Number(bounds.rows[0].min ?? 0)), max: Math.ceil(Number(bounds.rows[0].max ?? 0)) },
+      },
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.get('/events', async (req, res, next) => {
   try {
     const { rows } = await pool.query(

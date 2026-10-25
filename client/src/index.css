@@ -93,10 +93,12 @@ p { text-wrap: pretty; }
   html { scroll-behavior: auto; }
 }
 
-a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 3px;
-  border-radius: 2px;
+@layer base {
+  a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
 }
 
 /* Thin, quiet scrollbars for the basket panel and dialogs. */

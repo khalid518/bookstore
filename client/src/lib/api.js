@@ -37,3 +37,10 @@ async function authed(path, options) {
 
 export const fetchOrders = () => authed('/orders')
 export const cancelOrder = (id) => authed(`/orders/${id}/cancel`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+
+// Catalogue search for the All Books page. `signal` lets callers cancel stale requests.
+export async function fetchCatalog(params, signal) {
+  const res = await fetch(`/api/catalog?${params}`, { signal })
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+  return res.json()
+}

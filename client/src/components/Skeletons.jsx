@@ -1,6 +1,6 @@
 const bar = 'rounded bg-line/70 motion-safe:animate-pulse'
 
-function CardSkeleton() {
+export function CardSkeleton() {
   return (
     <li className="flex min-w-0 flex-col overflow-hidden rounded-md border border-line bg-surface shadow-sm">
       <div className="bg-alt px-5 pt-5">

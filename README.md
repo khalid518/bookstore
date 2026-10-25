@@ -11,10 +11,11 @@ An independent bookstore site built with React, Vite and Tailwind CSS.
 - Reusable, controlled `QuantityStepper` on every book card
 - Basket state shared across the app from `App`
 - Responsive sticky header with an animated mobile menu
-- Search by title, author or genre
+- Floating search in the navigation (press `/` or Ctrl/Cmd+K): live suggestions with keyboard navigation
+- All Books page (`#/books`): search, category, multi-select genre with live counts, price range and presets, staff picks, sorting, active-filter chips, infinite scroll with a "Load more" fallback, shareable filter URLs and a filter drawer on phones
 - Basket panel (saved in the browser) with pickup checkout for signed-in users: orders are stored in Postgres, priced on the server and paid in store
 - Click a cover or title for a book detail dialog
-- Browse by genre, plus "The Shelves at a Glance": animated stats, a Fiction vs Nonfiction donut, books per genre and a price spread, all computed from the live catalogue
+- "The Shelves at a Glance": animated stats, a Fiction vs Nonfiction donut, books per genre and a price spread, all computed from the live catalogue
 - Our story timeline (sample), booksellers (built from the staff-pick bylines), reader reviews (sample), FAQ and a newsletter signup
 - Plan Your Visit: weekly opening-hours chart with a live open/closed status
 - Account area (`#/orders`, `#/profile`): order history with cancel and order again, edit your name, change your password
@@ -63,6 +64,7 @@ Local Postgres with Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -e POST
 | Route                  | Description                         |
 | ---------------------- | ----------------------------------- |
 | `GET /api/books`       | All books (staff picks have `staffPick`) |
+| `GET /api/catalog`     | Filterable, paginated catalogue with facet counts. Query: `q`, `category`, `genre` (comma-separated), `min`, `max`, `picks=1`, `sort` (`featured`, `price-asc`, `price-desc`, `title`, `author`), `page`, `pageSize` |
 | `GET /api/events`      | Upcoming events                     |
 | `GET /api/health`      | Liveness check                      |
 | `POST /api/subscribe`  | Newsletter signup. Body: `{ "email": "<address>" }` |
