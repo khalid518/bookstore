@@ -11,6 +11,8 @@ An independent bookstore site built with React, Vite and Tailwind CSS.
 - Reusable, controlled `QuantityStepper` on every book card
 - Basket state shared across the app from `App`
 - Responsive sticky header with an animated mobile menu
+- Search by title, author or genre
+- Basket panel (saved in the browser) with pickup checkout for signed-in users: orders are stored in Postgres, priced on the server and paid in store
 - Upcoming events section
 - Book covers and links served from Open Library by ISBN
 
@@ -57,6 +59,7 @@ Local Postgres with Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -e POST
 | `GET /api/books`       | All books (staff picks have `staffPick`) |
 | `GET /api/events`      | Upcoming events                     |
 | `GET /api/health`      | Liveness check                      |
+| `POST /api/orders`     | Place a pickup order (requires sign-in). Body: `{ "items": { "<bookId>": <quantity> } }` |
 | `/api/auth/*`          | Better Auth: sign-up, sign-in, sign-out, get-session |
 
 ## Deployment

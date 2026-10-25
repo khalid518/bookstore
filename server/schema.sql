@@ -67,3 +67,22 @@ CREATE TABLE IF NOT EXISTS verification (
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Pickup orders (paid in store). Prices are copied onto the line so later price edits don't change history.
+CREATE TABLE IF NOT EXISTS orders (
+  id         SERIAL PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+  total      NUMERIC(10, 2) NOT NULL CHECK (total >= 0),
+  status     TEXT NOT NULL DEFAULT 'placed',
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+  order_id   INTEGER NOT NULL REFERENCES orders (id) ON DELETE CASCADE,
+  book_id    TEXT NOT NULL REFERENCES books (id),
+  quantity   INTEGER NOT NULL CHECK (quantity BETWEEN 1 AND 9),
+  unit_price NUMERIC(8, 2) NOT NULL,
+  PRIMARY KEY (order_id, book_id)
+);
+
+CREATE INDEX IF NOT EXISTS orders_user_idx ON orders (user_id);

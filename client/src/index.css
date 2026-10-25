@@ -14,6 +14,13 @@
   --color-line: #e0d6c0;
 
   --font-heading: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --animate-rise: rise 0.5s ease-out both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 

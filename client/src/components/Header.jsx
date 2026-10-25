@@ -19,9 +19,16 @@ export default function Header({ cartCount, onOpenBasket }) {
   const [authMode, setAuthMode] = useState(null)
   const { data: session, isPending } = useSession()
   const close = () => setOpen(false)
+  const goToSearch = () => {
+    close()
+    const input = document.getElementById('book-search')
+    if (!input) return document.getElementById('collection')?.scrollIntoView()
+    input.scrollIntoView({ block: 'center' })
+    input.focus({ preventScroll: true })
+  }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-surface">
+    <header className="sticky top-0 z-50 border-b border-line bg-surface/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-8 px-5 py-3 sm:px-8">
         <a href="#home" onClick={close} aria-label="The Reading Room, home" className="no-underline">
           <Logo />
@@ -51,6 +58,15 @@ export default function Header({ cartCount, onOpenBasket }) {
                 <a href={l.href} onClick={close} className={linkClass}>{l.label}</a>
               </li>
             ))}
+            <li>
+              <button type="button" onClick={goToSearch} aria-label="Search books" className="flex items-center gap-2 py-2 text-[0.95rem] font-medium text-primary hover:text-accent md:py-1">
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M20 20l-3.5-3.5" />
+                </svg>
+                <span className="md:sr-only">Search</span>
+              </button>
+            </li>
             <li className="py-2 md:py-0">
               <a href="#visit" onClick={close} className="inline-block rounded-md bg-accent px-4 py-1.5 text-[0.95rem] font-medium text-white no-underline hover:bg-accent-dark">
                 Visit Us

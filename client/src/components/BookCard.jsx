@@ -1,14 +1,15 @@
 import QuantityStepper from './QuantityStepper.jsx'
+import BookCover from './BookCover.jsx'
 
 export default function BookCard({ book, quantity, onQuantityChange }) {
   const { title, author, tag, price, coverUrl, url, staffPick } = book
   return (
-    <li className={`flex min-w-0 flex-col overflow-hidden rounded-md border border-line bg-surface shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-within:-translate-y-1 ${staffPick ? 'border-t-[3px] border-t-gold' : ''}`}>
+    <li className={`motion-safe:animate-rise flex min-w-0 flex-col overflow-hidden rounded-md border border-line bg-surface shadow-sm transition hover:-translate-y-1 hover:shadow-lg focus-within:-translate-y-1 ${staffPick ? 'border-t-[3px] border-t-gold' : ''}`}>
       <div className="relative bg-alt px-5 pt-5">
         {staffPick && (
           <span className="absolute left-3 top-3 z-[1] rounded-full bg-gold px-2.5 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider text-primary-dark">Staff Pick</span>
         )}
-        <img src={coverUrl} alt={`Cover of ${title} by ${author}`} loading="lazy" className="aspect-[2/3] w-full rounded-t-sm object-cover shadow-md" />
+        <BookCover title={title} author={author} src={coverUrl} alt={`Cover of ${title} by ${author}`} className="relative w-full rounded-t-sm shadow-md" />
       </div>
       <div className="flex flex-1 flex-col p-5">
         {!staffPick && <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-accent">{tag}</p>}
@@ -26,9 +27,17 @@ export default function BookCard({ book, quantity, onQuantityChange }) {
             View Book<span className="sr-only">: {title} (opens in a new tab)</span>
           </a>
         </div>
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="text-sm text-muted">In basket</span>
-          <QuantityStepper label={title} value={quantity} onChange={onQuantityChange} />
+        <div className="mt-3 flex min-h-10 items-center justify-between gap-2">
+          {quantity === 0 ? (
+            <button type="button" onClick={() => onQuantityChange(1)} className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-cream transition hover:bg-primary-dark">
+              Add to basket<span className="sr-only">: {title}</span>
+            </button>
+          ) : (
+            <>
+              <span className="text-sm font-semibold text-accent">In your basket</span>
+              <QuantityStepper label={title} value={quantity} onChange={onQuantityChange} />
+            </>
+          )}
         </div>
       </div>
     </li>

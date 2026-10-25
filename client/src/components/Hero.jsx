@@ -1,4 +1,6 @@
-const shelfIds = ['circe', 'piranesi', 'gentleman-in-moscow']
+import BookCover from './BookCover.jsx'
+
+const shelfIds =['circe', 'piranesi', 'gentleman-in-moscow']
 const positions = [
   'left-[8%] -rotate-[8deg]',
   'left-[32%] z-10 -translate-y-[6%]',
@@ -33,7 +35,7 @@ export default function Hero({ books }) {
           className="relative isolate aspect-square w-full max-w-md min-w-0 overflow-hidden rounded-md bg-primary lg:max-w-[30rem] lg:flex-[0_1_45%]"
         >
           {shelf.map((b, i) => (
-            <img key={b.id} src={b.coverUrl} alt="" className={`absolute bottom-[14%] aspect-[2/3] w-[36%] origin-bottom rounded-sm object-cover shadow-xl ${positions[i]}`} />
+            <BookCover key={b.id} title={b.title} author={b.author} src={b.coverUrl} className={`absolute bottom-[14%] w-[36%] origin-bottom rounded-sm shadow-xl ${positions[i]}`} />
           ))}
           <div className="absolute inset-x-0 bottom-0 h-[14%] bg-gradient-to-b from-[#8a5a33] to-[#5e3b1f]" />
         </div>

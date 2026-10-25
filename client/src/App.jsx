@@ -7,6 +7,7 @@ import StaffPicks from './components/StaffPicks.jsx'
 import Events from './components/Events.jsx'
 import Footer from './components/Footer.jsx'
 import BasketDialog from './components/BasketDialog.jsx'
+import Perks from './components/Perks.jsx'
 
 const BASKET_KEY = 'reading-room-basket'
 
@@ -22,6 +23,7 @@ function loadBasket() {
 export default function App() {
   const [quantities, setQuantities] = useState(loadBasket)
   const [basketOpen, setBasketOpen] = useState(false)
+  const [query, setQuery] = useState('')
   const [books, setBooks] = useState([])
   const [events, setEvents] = useState([])
   const [status, setStatus] = useState('loading')
@@ -65,6 +67,9 @@ export default function App() {
   const cartCount = Object.values(quantities).reduce((sum, q) => sum + q, 0)
 
   const shelf = { quantities, onQuantityChange: setQuantity }
+  const needle = query.trim().toLowerCase()
+  const matches = (b) => !needle || [b.title, b.author, b.tag].some((s) => s.toLowerCase().includes(needle))
+  const picks = books.filter((b) => b.staffPick && matches(b))
 
   return (
     <>
@@ -77,10 +82,11 @@ export default function App() {
       )}
       <main id="main">
         <Hero books={books} />
+        <Perks />
         {status === 'ready' ? (
           <>
-            <Collection books={books.filter((b) => !b.staffPick)} {...shelf} />
-            <StaffPicks books={books.filter((b) => b.staffPick)} {...shelf} />
+            <Collection books={books.filter((b) => !b.staffPick && matches(b))} query={query} onQueryChange={setQuery} {...shelf} />
+            {picks.length > 0 && <StaffPicks books={picks} {...shelf} />}
             <Events events={events} />
           </>
         ) : (

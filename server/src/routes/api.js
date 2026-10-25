@@ -1,5 +1,7 @@
 import { Router } from 'express'
+import { fromNodeHeaders } from 'better-auth/node'
 import { pool } from '../db.js'
+import { auth } from '../auth.js'
 
 const router = Router()
 
@@ -55,6 +57,53 @@ router.get('/events', async (req, res, next) => {
       `SELECT id, title, blurb, to_char(starts_at, 'YYYY-MM-DD"T"HH24:MI') AS datetime FROM events ORDER BY starts_at`,
     )
     res.json(rows.map(toEvent))
+  } catch (err) {
+    next(err)
+  }
+})
+
+const MAX_QTY = 9
+const MAX_LINES = 50
+
+// Places a pickup order. The client only sends { bookId: quantity }; prices come from the database.
+router.post('/orders', async (req, res, next) => {
+  try {
+    const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) })
+    if (!session) return res.status(401).json({ error: 'Sign in to place an order' })
+
+    const raw = req.body?.items
+    const lines = raw && typeof raw === 'object' && !Array.isArray(raw) ? Object.entries(raw) : []
+    if (lines.length === 0 || lines.length > MAX_LINES) return res.status(400).json({ error: 'Your basket is empty' })
+    if (lines.some(([, q]) => !Number.isInteger(q) || q < 1 || q > MAX_QTY)) {
+      return res.status(400).json({ error: `Quantities must be between 1 and ${MAX_QTY}` })
+    }
+
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const { rows: books } = await client.query('SELECT id, title, price FROM books WHERE id = ANY($1)', [lines.map(([id]) => id)])
+      if (books.length !== lines.length) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({ error: 'Some books in your basket are no longer available' })
+      }
+      const price = new Map(books.map((b) => [b.id, Number(b.price)]))
+      const totalCents = lines.reduce((sum, [id, q]) => sum + Math.round(price.get(id) * 100) * q, 0)
+
+      const { rows: [order] } = await client.query(
+        'INSERT INTO orders (user_id, total) VALUES ($1, $2) RETURNING id, created_at',
+        [session.user.id, totalCents / 100],
+      )
+      for (const [id, q] of lines) {
+        await client.query('INSERT INTO order_items (order_id, book_id, quantity, unit_price) VALUES ($1, $2, $3, $4)', [order.id, id, q, price.get(id)])
+      }
+      await client.query('COMMIT')
+      res.status(201).json({ id: order.id, total: totalCents / 100, itemCount: lines.reduce((s, [, q]) => s + q, 0) })
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {})
+      throw err
+    } finally {
+      client.release()
+    }
   } catch (err) {
     next(err)
   }
